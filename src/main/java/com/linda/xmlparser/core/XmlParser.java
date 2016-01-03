@@ -9,6 +9,7 @@ import java.util.Map;
 import com.linda.xmlparser.content.ContentParser;
 import com.linda.xmlparser.index.EndIndex;
 import com.linda.xmlparser.info.PreInfo;
+import com.linda.xmlparser.listener.Node;
 import com.linda.xmlparser.listener.NodeListener;
 import com.linda.xmlparser.param.ParamParser;
 
@@ -64,13 +65,13 @@ public abstract class XmlParser {
 
 	protected abstract String preParse(String content);
 
-	public void fireNodeListener(String type, Map<String, String> params, String content) {
+	public void fireNodeListener(Node node) {
 		for (NodeListener listener : listeners) {
-			listener.onNode(type, params, content);
+			listener.onNode(node);
 		}
-		NodeListener nodeListener = mapListeners.get(type);
+		NodeListener nodeListener = mapListeners.get(node.getName());
 		if (nodeListener != null) {
-			nodeListener.onNode(type, params, content);
+			nodeListener.onNode(node);
 		}
 	}
 

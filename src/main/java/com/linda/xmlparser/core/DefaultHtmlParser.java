@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.linda.xmlparser.content.DefaultContentParser;
 import com.linda.xmlparser.index.SimpleEndIndex;
+import com.linda.xmlparser.listener.Node;
 import com.linda.xmlparser.param.DefaultParamParser;
 import com.linda.xmlparser.utils.FileUtils;
 
@@ -37,11 +38,11 @@ public class DefaultHtmlParser extends XmlParser {
 	@Override
 	public void parse(String content) {
 		if (content != null) {
-			parseTxt(content, 0, content.length());
+			parseTxt(content, 0, content.length(),null);
 		}
 	}
 
-	private void parseTxt(String txt, int from, int end) {
+	private void parseTxt(String txt, int from, int end,Node node) {
 		int preFrom = txt.indexOf("<", from);
 		int preEnd = txt.indexOf(">", from);
 		while (preFrom >= from && preEnd >= from && preEnd > preFrom && preEnd < end && from < end) {
@@ -77,9 +78,14 @@ public class DefaultHtmlParser extends XmlParser {
 					from = preEnd + 1;
 				}
 			}
-			super.fireNodeListener(type, paramMap, content);
+			Node nn = new Node();
+			nn.setName(type);
+			nn.setParams(paramMap);
+			nn.setParent(node);
+			nn.setContent(content);
+			super.fireNodeListener(nn);
 			if (isXml(content)) {
-				parseTxt(content, 0, content.length());
+				parseTxt(content, 0, content.length(),nn);
 			}
 			if (from < end) {
 				preFrom = txt.indexOf("<", from);
