@@ -1,5 +1,7 @@
 package com.linda.xmlparser.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +44,7 @@ public class DefaultXmlParser extends XmlParser {
 		int preEnd = txt.indexOf(">", from);
 		while (preFrom >= from && preEnd >= from && preEnd > preFrom && preEnd < end && from < end) {
 			String type = null;
-			Map<String, String> paramMap = null;
+			Map<String, String> paramMap = new HashMap<String,String>();
 			String content = null;
 			int blankIndex = txt.indexOf(" ", preFrom);
 			int paramEnd = preEnd;
@@ -77,11 +79,19 @@ public class DefaultXmlParser extends XmlParser {
 			nn.setName(type);
 			nn.setParams(paramMap);
 			nn.setParent(node);
+			if(node!=null){
+				List<Node> children = node.getChildren();
+				if(children==null){
+					children = new ArrayList<Node>();
+					node.setChildren(children);
+				}
+				children.add(nn);
+			}
 			nn.setContent(content);
-			super.fireNodeListener(nn);
 			if (isXml(content)) {
 				parseTxt(content, 0, content.length(),nn);
 			}
+			super.fireNodeListener(nn);
 			if (from < end) {
 				preFrom = txt.indexOf("<", from);
 				preEnd = txt.indexOf(">", from);

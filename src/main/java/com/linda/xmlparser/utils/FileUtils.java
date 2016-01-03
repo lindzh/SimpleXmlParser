@@ -45,8 +45,8 @@ public class FileUtils {
 		try {
 			RandomAccessFile file = new RandomAccessFile(filePath, "rw");
 			file.seek(file.length());
-			file.write(content.getBytes());
-			file.writeBytes("\r\n");
+			file.write(content.getBytes("gbk"));
+//			file.writeBytes("\r\n");
 			file.close();
 		} catch (FileNotFoundException e) {
 			logger.warn("file not exist!" + filePath);

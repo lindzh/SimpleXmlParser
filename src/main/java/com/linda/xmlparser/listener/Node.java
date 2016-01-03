@@ -1,5 +1,6 @@
 package com.linda.xmlparser.listener;
 
+import java.util.List;
 import java.util.Map;
 
 public class Node {
@@ -11,6 +12,8 @@ public class Node {
 	private String content;
 
 	private Node parent;
+	
+	private List<Node> children;
 
 	public String getName() {
 		return name;
@@ -44,4 +47,11 @@ public class Node {
 		this.parent = parent;
 	}
 
+	public List<Node> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<Node> children) {
+		this.children = children;
+	}
 }

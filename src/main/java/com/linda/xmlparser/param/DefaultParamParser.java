@@ -46,7 +46,7 @@ public class DefaultParamParser implements ParamParser {
 			}
 			return map;
 		}
-		return null;
+		return new HashMap<String,String>();
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
