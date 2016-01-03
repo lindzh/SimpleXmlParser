@@ -90,6 +90,10 @@ public class DefaultXmlParser extends XmlParser {
 			nn.setContent(content);
 			if (isXml(content)) {
 				parseTxt(content, 0, content.length(),nn);
+			}else{
+				if(this.contentParser!=null){
+					nn.setContent(this.contentParser.parserContent(nn.getContent()));
+				}
 			}
 			super.fireNodeListener(nn);
 			if (from < end) {
@@ -128,15 +132,5 @@ public class DefaultXmlParser extends XmlParser {
 			}
 		}
 		return content;
-	}
-
-	public static void main(String[] args) {
-		String body = FileUtils.toString("D:\\test\\xml\\escape.txt");
-		XmlParser parser = new DefaultXmlParser();
-		parser.addEscape(new Pair<String, String>("<!--", "-->"));
-		parser.addEscape(new Pair<String, String>("<?", "?>"));
-		parser.addEscape(new Pair<String, String>("<#--", "-->"));
-		String content = parser.preParse(body);
-		System.out.println(content);
 	}
 }

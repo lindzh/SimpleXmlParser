@@ -95,6 +95,10 @@ public class DefaultHtmlParser extends XmlParser {
 			nn.setContent(content);
 			if (isXml(content)) {
 				parseTxt(content, 0, content.length(),nn);
+			}else{
+				if(this.contentParser!=null){
+					nn.setContent(this.contentParser.parserContent(nn.getContent()));
+				}
 			}
 			super.fireNodeListener(nn);
 			if (from < end) {
@@ -130,19 +134,5 @@ public class DefaultHtmlParser extends XmlParser {
 			content = buffer.toString();
 		}
 		return content;
-	}
-	
-	public static void main(String[] args) {
-		String body = FileUtils.toString("D:\\test\\xml\\html.txt");
-		DefaultHtmlParser parser = new DefaultHtmlParser();
-		
-		/*
-		XmlParser parser = new DefaultHtmlParser();
-		addEscape(new Pair<String, String>("<!--", "-->"));
-		addEscape(new Pair<String, String>("<?", "?>"));
-		addEscape(new Pair<String, String>("<#--", "-->"));
-		String content = preParse(body);
-		System.out.println(content);
-		*/
 	}
 }
