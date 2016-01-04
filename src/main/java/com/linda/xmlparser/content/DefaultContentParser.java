@@ -4,6 +4,11 @@ import org.apache.commons.lang.StringUtils;
 
 import com.linda.xmlparser.utils.FileUtils;
 
+/**
+ * 内容抓取
+ * @author lindezhi
+ * 2016年1月4日 下午10:54:21
+ */
 public class DefaultContentParser implements ContentParser {
 
 	private static String startPrefix = "<";

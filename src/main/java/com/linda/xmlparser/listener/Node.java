@@ -1,18 +1,46 @@
 package com.linda.xmlparser.listener;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * html 或者xml 节点
+ * @author lindezhi
+ * 2016年1月4日 下午10:47:15
+ */
 public class Node {
 
+	/**
+	 * 节点类型如<div>haha</div>节点类型为div
+	 */
 	private String name;
 
-	private Map<String, String> params;
+	/**
+	 * 节点属性,如<a href="abx" class="alink">abc</a>
+	 * 节点a的属性包含href和class
+	 */
+	private Map<String, String> attributes;
 
+	/**
+	 * 节点中的文本信息
+	 * 如<string>hahah<string>
+	 * hahah就是content
+	 */
 	private String content;
 
+	/**
+	 * 父节点
+	 * <div>
+	 * 	<a href="aaa">ggg</a>
+	 * </div>
+	 * a节点的父节点为div
+	 */
 	private Node parent;
 	
+	/**
+	 * 子节点列表
+	 */
 	private List<Node> children;
 
 	public String getName() {
@@ -22,13 +50,24 @@ public class Node {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public Map<String, String> getParams() {
-		return params;
+	
+	public Map<String, String> getAttributes() {
+		return attributes;
 	}
 
-	public void setParams(Map<String, String> params) {
-		this.params = params;
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
+	}
+	
+	public String getAttribute(String key){
+		return attributes!=null?attributes.get(key):null;
+	}
+	
+	public void setAttribute(String key,String value){
+		if(attributes==null){
+			attributes = new HashMap<String,String>();
+		}
+		attributes.put(key, value);
 	}
 
 	public String getContent() {

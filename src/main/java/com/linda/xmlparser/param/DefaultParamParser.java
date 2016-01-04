@@ -9,6 +9,11 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * attributes parser
+ * @author lindezhi
+ * 2016年1月4日 下午10:54:39
+ */
 public class DefaultParamParser implements ParamParser {
 
 	public Map<String, String> parseParams(String params) {

@@ -11,6 +11,11 @@ import com.linda.xmlparser.listener.Node;
 import com.linda.xmlparser.param.DefaultParamParser;
 import com.linda.xmlparser.utils.FileUtils;
 
+/**
+ * html parser
+ * @author lindezhi
+ * 2016年1月4日 下午10:53:06
+ */
 public class DefaultHtmlParser extends XmlParser {
 
 	public DefaultHtmlParser(){
@@ -82,7 +87,7 @@ public class DefaultHtmlParser extends XmlParser {
 			}
 			Node nn = new Node();
 			nn.setName(type);
-			nn.setParams(paramMap);
+			nn.setAttributes(paramMap);
 			nn.setParent(node);
 			if(node!=null){
 				List<Node> children = node.getChildren();

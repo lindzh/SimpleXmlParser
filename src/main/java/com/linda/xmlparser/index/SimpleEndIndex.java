@@ -2,6 +2,11 @@ package com.linda.xmlparser.index;
 
 import com.linda.xmlparser.utils.FileUtils;
 
+/**
+ * html或者xml结束
+ * @author lindezhi
+ * 2016年1月4日 下午10:52:05
+ */
 public class SimpleEndIndex implements EndIndex {
 
 	public int getEnd(String type, String txt, int from, int end) {
