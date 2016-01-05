@@ -41,14 +41,6 @@ public abstract class XmlParser {
 		listeners.add(listener);
 	}
 
-	public void executeParse(String content) {
-		content = preParse(content);
-		if (info != null) {
-			info.onInfo(content);
-		}
-		parse(content);
-	}
-
 	public void setParamParser(ParamParser paramParser) {
 		this.paramParser = paramParser;
 	}
@@ -61,7 +53,7 @@ public abstract class XmlParser {
 		this.escapeValues.add(pair);
 	}
 
-	protected abstract void parse(String content);
+	public abstract void parse(String content);
 
 	protected abstract String preParse(String content);
 

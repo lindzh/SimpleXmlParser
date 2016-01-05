@@ -5,24 +5,29 @@ import java.util.Map;
 import com.linda.xmlparser.listener.Node;
 import com.linda.xmlparser.listener.NodeListener;
 
+/**
+ * benchmark listener
+ * @author lindezhi
+ * 2016年1月5日 上午10:47:14
+ */
 public class MyNodeListener implements NodeListener {
 
+	int count = 0;
+
+	@Override
 	public void onNode(Node node) {
 		String name = node.getName();
 		Map<String, String> params = node.getAttributes();
 		String content = node.getContent();
-		System.out.println("------------ node:" + name + " ---------------");
-		if (params != null) {
-			System.out.println(params.toString());
-		}
-		System.out.println(content);
-		System.out.println("------------------------------------------------");
+		count++;
 	}
 
 	@Override
 	public void setDocContext(Object doc) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
+	public int getCounts() {
+		return count;
+	}
 }

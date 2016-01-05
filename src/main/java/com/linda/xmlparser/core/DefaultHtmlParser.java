@@ -45,6 +45,7 @@ public class DefaultHtmlParser extends XmlParser {
 	@Override
 	public void parse(String content) {
 		if (content != null) {
+			content = this.preParse(content);
 			parseTxt(content, 0, content.length(),null);
 		}
 	}
@@ -124,7 +125,7 @@ public class DefaultHtmlParser extends XmlParser {
 	}
 
 	@Override
-	public String preParse(String content) {
+	protected String preParse(String content) {
 		if (escapeValues != null && escapeValues.size() > 0 && content != null) {
 			StringBuffer buffer = new StringBuffer(content);
 			for (Pair<String, String> pair : escapeValues) {

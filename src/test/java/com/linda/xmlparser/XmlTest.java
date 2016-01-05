@@ -16,14 +16,8 @@ public class XmlTest {
 		String file = "D:\\test\\xml\\xml.txt";
 		String content = FileUtils.toString(file);
 		XmlParser parser = new DefaultXmlParser();
-		parser.setParamParser(new DefaultParamParser());
-		parser.setEndIndex(new SimpleEndIndex());
-		parser.setContentParser(new DefaultContentParser());
-		parser.addEscape(new Pair<String, String>("<!--", "-->"));
-		parser.addEscape(new Pair<String, String>("<?", "?>"));
-		parser.addEscape(new Pair<String, String>("<#--", "-->"));
 		parser.addListener(new MyNodeListener());
-		parser.executeParse(content);
+		parser.parse(content);
 	}
 
 }
