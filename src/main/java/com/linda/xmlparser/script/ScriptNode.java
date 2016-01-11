@@ -40,6 +40,11 @@ public class ScriptNode {
 	private NodeIndex indexes;
 	
 	/**
+	 * 取值条件
+	 */
+	private List<ScriptNodeCondition> conditions;
+	
+	/**
 	 * 下一级
 	 */
 	private ScriptNode next;
@@ -123,5 +128,12 @@ public class ScriptNode {
 			return false;
 		}
 	}
-	
+
+	public List<ScriptNodeCondition> getConditions() {
+		return conditions;
+	}
+
+	public void setConditions(List<ScriptNodeCondition> conditions) {
+		this.conditions = conditions;
+	}
 }

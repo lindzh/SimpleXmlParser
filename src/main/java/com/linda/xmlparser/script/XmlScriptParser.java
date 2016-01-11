@@ -2,10 +2,13 @@ package com.linda.xmlparser.script;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.linda.xmlparser.core.XmlParser;
 import com.linda.xmlparser.exception.XmlException;
@@ -64,7 +67,7 @@ public class XmlScriptParser {
 	 * @param content
 	 * @return
 	 */
-	private List<String> parseList(XmlScript script,String content){
+	public List<String> parseList(XmlScript script,String content){
 		final ArrayList<String> results = new ArrayList<String>();
 		
 		final ScriptNode srcnode = script.getScript();
@@ -73,8 +76,7 @@ public class XmlScriptParser {
 			public void setDocContext(Object doc) {}
 			@Override
 			public void onNode(Node node) {
-				Map<String, String> attributes = node.getAttributes();
-				boolean matchAttributes = matchAttributes(node,srcnode);
+				boolean matchAttributes = matchAttributes(node,srcnode.getAttributes());
 				if(!matchAttributes){
 					return;
 				}
@@ -88,7 +90,7 @@ public class XmlScriptParser {
 					results.add(node.getAttribute(next.getScript()));
 				}else{
 					List<Node> children = node.getChildren(next.getType());
-					List<String> values = genScriptValue(next,children);
+					List<String> values = genScriptValue(next,children,node);
 					results.addAll(values);
 				}
 			}
@@ -103,7 +105,7 @@ public class XmlScriptParser {
 	 * @param content
 	 * @return
 	 */
-	private String parseTxt(XmlScript script,String content){
+	public String parseTxt(XmlScript script,String content){
 		List<String> results = this.parseList(script, content);
 		if(results!=null&&results.size()>0){
 			return results.get(0);
@@ -119,7 +121,7 @@ public class XmlScriptParser {
 	 * @param elements
 	 * @return
 	 */
-	private List<String> genScriptValue(ScriptNode node,List<Node> elements){
+	private List<String> genScriptValue(ScriptNode node,List<Node> elements,Node parent){
 		ArrayList<String> results = new ArrayList<String>();
 		if(elements!=null){
 			if(node.isValue()){
@@ -127,17 +129,24 @@ public class XmlScriptParser {
 					results.add(this.genValue(node, ele));
 				}
 			}else{
-				List<Node> matchNodes = this.matchAttrAndIndex(node, elements);
+				List<Node> matchNodes = this.matchAttrAndIndexAndConditions(node, elements,parent);
 				if(node.isContent()){
 					for(Node ele:matchNodes){
 						results.add(this.genValue(node, ele));
 					}
 				}else{
 					ScriptNode next = node.getNext();
-					for(Node mele:matchNodes){
-						List<Node> children = mele.getChildren(next.getType());
-						List<String> list = this.genScriptValue(next, children);
-						results.addAll(list);
+					if(next.isValue()){
+						for(Node mele:matchNodes){
+							String value = this.genValue(next, mele);
+							results.add(value);
+						}
+					}else{
+						for(Node mele:matchNodes){
+							List<Node> children = mele.getChildren(next.getType());
+							List<String> list = this.genScriptValue(next, children,mele);
+							results.addAll(list);
+						}
 					}
 				}
 			}
@@ -151,10 +160,19 @@ public class XmlScriptParser {
 	 * @param elements
 	 * @return
 	 */
-	private List<Node> matchAttrAndIndex(ScriptNode node,List<Node> elements){
+	private List<Node> matchAttrAndIndexAndConditions(ScriptNode node,List<Node> elements,Node parent){
+		List<Node> fixNodes = this.fixIndex(node.getIndexes(), elements);
+		List<Node> nodes = this.matchAttributes(fixNodes, node.getAttributes());
+		if(this.matchConditions(node, parent)){
+			return nodes;
+		}else{
+			return Collections.emptyList();
+		}
+	}
+	
+	private List<Node> fixIndex(NodeIndex index,List<Node> elements){
 		ArrayList<Node> nodes = new ArrayList<Node>();
-		if(elements!=null){
-			NodeIndex index = node.getIndexes();
+		if(elements!=null&&index!=null){
 			Set<Node> fixNodes = new HashSet<Node>();
 			if(index.isAll()){
 				fixNodes.addAll(elements);
@@ -171,12 +189,66 @@ public class XmlScriptParser {
 					fixNodes.add(elements.get(elements.size()-1));
 				}
 			}
-			
-			return this.matchNodes(fixNodes, node);
+			nodes.addAll(fixNodes);
 		}
 		return nodes;
 	}
 	
+	private int size(List<Node> nodes,NodeIndex index){
+		if(nodes==null||nodes.size()==0||index==null){
+			return 0;
+		}
+		if(index.isAll()){
+			return nodes.size();
+		}
+		HashSet<Integer> set = new HashSet<Integer>();
+		if(index.isLast()){
+			set.add(nodes.size()-1);
+		}
+		List<Integer> idxes = index.getIndexes();
+		if(idxes!=null){
+			set.addAll(idxes);
+		}
+		return set.size();
+	}
+	
+	private boolean matchConditions(ScriptNode node,Node parent){
+		List<ScriptNodeCondition> conditions = node.getConditions();
+		if(conditions!=null){
+			for(ScriptNodeCondition condition:conditions){
+				List<Node> nodes = parent.getChildren(condition.getType());
+				List<Node> fixNodes = this.fixIndex(condition.getIndex(), nodes);
+				if(nodes!=null){
+					int size = this.size(nodes, condition.getIndex());
+					if(size!=fixNodes.size()){
+						return false;
+					}
+					List<Node> fixAtts = this.matchAttributes(fixNodes, condition.getAttributes());
+					if(fixAtts.size()!=fixNodes.size()){
+						return false;
+					}
+					String content = condition.getContent();
+					if(StringUtils.isNotBlank(content)){
+						for(Node fix:fixAtts){
+							String cc = fix.getContent();
+							if(StringUtils.isNotBlank(cc)){
+								if(!cc.contains(content)){
+									return false;
+								}
+							}else{
+								return false;
+							}
+						}
+					}
+				}else{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+
 	/**
 	 * 是否可取值
 	 * @param node
@@ -202,11 +274,17 @@ public class XmlScriptParser {
 		throw new XmlException("unknown value to get");
 	}
 
-	private List<Node> matchNodes(Collection<Node> nodes,ScriptNode srcNode){
+	private List<Node> matchAttributes(Collection<Node> nodes,Map<String,String> att){
 		ArrayList<Node> result = new ArrayList<Node>();
-		for(Node node:nodes){
-			if(this.matchAttributes(node, srcNode)){
-				result.add(node);
+		if(nodes!=null&&att!=null&&att.size()>0){
+			for(Node node:nodes){
+				if(this.matchAttributes(node, att)){
+					result.add(node);
+				}
+			}
+		}else if(att==null||att.size()<1){
+			if(nodes!=null&&nodes.size()>0){
+				result.addAll(nodes);
 			}
 		}
 		return result;
@@ -218,8 +296,7 @@ public class XmlScriptParser {
 	 * @param node
 	 * @return
 	 */
-	private boolean matchAttributes(Node elem,ScriptNode node){
-		Map<String, String> attributes = node.getAttributes();
+	private boolean matchAttributes(Node elem,Map<String, String> attributes){
 		//attribute 检查
 		if(attributes!=null&&attributes.size()>0){
 			Map<String, String> nodeAttr = elem.getAttributes();
@@ -241,5 +318,13 @@ public class XmlScriptParser {
 			}
 		}
 		return true;
+	}
+
+	public XmlParser getParser() {
+		return parser;
+	}
+
+	public void setParser(XmlParser parser) {
+		this.parser = parser;
 	} 
 }
