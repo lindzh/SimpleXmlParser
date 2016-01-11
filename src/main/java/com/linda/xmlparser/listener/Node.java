@@ -1,5 +1,6 @@
 package com.linda.xmlparser.listener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class Node {
 	 * 子节点列表
 	 */
 	private List<Node> children;
+	
+	private Map<String,List<Node>> childrenMap = new HashMap<String,List<Node>>();
 
 	public String getName() {
 		return name;
@@ -89,8 +92,22 @@ public class Node {
 	public List<Node> getChildren() {
 		return children;
 	}
-
-	public void setChildren(List<Node> children) {
-		this.children = children;
+	
+	public List<Node> getChildren(String name) {
+		return childrenMap.get(name);
+	}
+	
+	public void addChild(Node child){
+		if(children==null){
+			children = new ArrayList<Node>();
+		}
+		children.add(child);
+		
+		List<Node> list = childrenMap.get(child.getName());
+		if(list==null){
+			list = new ArrayList<Node>();
+			childrenMap.put(child.getName(), list);
+		}
+		list.add(child);
 	}
 }

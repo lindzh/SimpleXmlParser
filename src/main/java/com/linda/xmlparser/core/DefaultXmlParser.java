@@ -86,12 +86,7 @@ public class DefaultXmlParser extends XmlParser {
 			nn.setAttributes(paramMap);
 			nn.setParent(node);
 			if(node!=null){
-				List<Node> children = node.getChildren();
-				if(children==null){
-					children = new ArrayList<Node>();
-					node.setChildren(children);
-				}
-				children.add(nn);
+				node.addChild(nn);
 			}
 			nn.setContent(content);
 			if (isXml(content)) {
