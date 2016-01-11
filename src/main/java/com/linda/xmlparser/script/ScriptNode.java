@@ -1,6 +1,9 @@
 package com.linda.xmlparser.script;
 
+import java.util.List;
 import java.util.Map;
+
+import com.linda.xmlparser.exception.XmlException;
 
 /**
  * div[*]{ddd=""ddd}
@@ -81,6 +84,10 @@ public class ScriptNode {
 		this.next = next;
 	}
 
+	/**
+	 * 取attribute中的值
+	 * @return
+	 */
 	public boolean isValue() {
 		return value;
 	}
@@ -89,7 +96,32 @@ public class ScriptNode {
 		this.value = value;
 	}
 	
+	/**
+	 * 取content中的值
+	 * @return
+	 */
 	public boolean isContent(){
 		return next==null&&!this.isValue();
 	}
+	
+	public boolean isMulti(){
+		if(this.indexes!=null){
+			if (this.indexes.isAll()) {
+				return true;
+			} else {// 非所有，获取部分数据
+				if (indexes != null) {
+					List<Integer> list = indexes.getIndexes();
+					boolean lst = indexes.isLast();
+					int count = list != null ? list.size() : 0;
+					count += lst ? 1 : 0;
+					return count > 1;
+				} else {
+					throw new XmlException("index can't be null with xml content");
+				}
+			}
+		}else{
+			return false;
+		}
+	}
+	
 }

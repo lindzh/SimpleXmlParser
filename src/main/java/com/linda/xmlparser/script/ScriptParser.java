@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.linda.xmlparser.param.DefaultParamParser;
 import com.linda.xmlparser.param.ParamParser;
+import com.linda.xmlparser.utils.JSONUtils;
 
 /**
  * div[*]{ddd=""ddd}>div[8888]{class="" fff=""}.fffff
@@ -17,7 +18,7 @@ public class ScriptParser {
 	
 	private ParamParser parser = new DefaultParamParser();
 	
-	public ScriptNode parse(String script){
+	public XmlScript parse(String script){
 		ScriptNode node = null;
 		ScriptNode next = null;
 		int idx = 0;
@@ -63,7 +64,11 @@ public class ScriptParser {
 								current.setAttributes(new HashMap<String,String>());
 							}
 						}else{
-							throw new RuntimeException("invalid script:"+script);
+							if(attStart<0&&attEnd<0){
+								current.setAttributes(new HashMap<String,String>());
+							}else{
+								throw new RuntimeException("invalid script:"+script);
+							}
 						}
 					}else{
 						throw new RuntimeException("invalid script:"+script);
@@ -100,7 +105,7 @@ public class ScriptParser {
 				break;
 			}
 		}
-		return node;
+		return new XmlScript(script, node);
 	}
 	
 	private NodeIndex parseScriptIndex(String script){
@@ -154,5 +159,12 @@ public class ScriptParser {
 			}
 		}
 		return index;
+	}
+	
+	public static void main(String[] args) {
+		String src = "li[*]{class=\"list_item\"}>a[0]>img[0].src";
+		ScriptParser scriptParser = new ScriptParser();
+		XmlScript parse = scriptParser.parse(src);
+		System.out.println(JSONUtils.toJSON(parse));
 	}
 }
