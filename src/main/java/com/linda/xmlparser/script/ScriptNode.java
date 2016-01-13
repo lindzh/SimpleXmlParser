@@ -45,6 +45,15 @@ public class ScriptNode {
 	private List<ScriptNodeCondition> conditions;
 	
 	/**
+	 * content内容
+	 */
+	private String content;
+	
+	/**
+	 * content操作符,包含，不包含
+	 */
+	private Operate contentOperate;
+	/**
 	 * 下一级
 	 */
 	private ScriptNode next;
@@ -135,5 +144,21 @@ public class ScriptNode {
 
 	public void setConditions(List<ScriptNodeCondition> conditions) {
 		this.conditions = conditions;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Operate getContentOperate() {
+		return contentOperate;
+	}
+
+	public void setContentOperate(Operate contentOperate) {
+		this.contentOperate = contentOperate;
 	}
 }

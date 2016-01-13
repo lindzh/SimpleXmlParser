@@ -17,7 +17,7 @@ public class ScriptTest {
 		
 		String file = FileUtils.toString("d:\\anjuke.html");
 //		String script = "a[*]{class=\"aNxt\"}.href";
-		String script = "li[*]{class=\"cl_item\"}>span[*]{class=\"con\"}(span[0]{class=\"tit\"}?\"区域\")>a[*]{}";
+		String script = "li[*]{class=\"cl_item\"}>span[*]{class=\"con\"}(span[0]{class=\"tit\"}?\"区域\")>a[*]{}?!\"不限\"";
 		ScriptParser scriptParser = new ScriptParser();
 		XmlScript xmlScript = scriptParser.parse(script);
 		System.out.println(JSONUtils.toJSON(xmlScript));

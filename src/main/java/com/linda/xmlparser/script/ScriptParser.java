@@ -102,6 +102,8 @@ public class ScriptParser {
 								throw new RuntimeException("invalid script:"+script);
 							}
 						}
+						
+//						str.indexOf("?", fromIndex);
 					}else{
 						throw new RuntimeException("invalid script:"+script);
 					}
