@@ -65,9 +65,10 @@ public class ScriptParser {
 						//a[0]{}  {} attribute条件提取
 						int attStart = str.indexOf("{", idxEnd);
 						int attEnd = str.indexOf("}", idxEnd);
-						int conFrom = attEnd;
+						int conFrom = -1;
 
 						if(attEnd>attStart&&attStart>0){
+							conFrom = attEnd;
 							String attScript = str.substring(attStart+1, attEnd);
 							if(StringUtils.isNotBlank(attScript)){
 								Map<String, String> attr = parser.parseParams(attScript);
@@ -78,8 +79,9 @@ public class ScriptParser {
 							//a[0]{}()  ()//()相对条件提取
 							int conStart = str.indexOf("(", attEnd);
 							int conEnd = str.indexOf(")", attEnd);
-							conFrom = conEnd;
+							
 							if(conStart>0&&conEnd>0){
+								conFrom = conEnd;
 								current.setConditions(new ArrayList<ScriptNodeCondition>());
 								String subConditions = str.substring(conStart+1, conEnd);
 								if(StringUtils.isNotBlank(str)){

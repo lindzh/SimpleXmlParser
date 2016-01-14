@@ -50,7 +50,7 @@ public class XmlScript {
 	}
 
 	private boolean isMulti(ScriptNode node) {
-		if (node.isContent()||node.getNext()!=null) {//取content值
+		if (node.isContentValue()||node.getNext()!=null) {//取content值
 			if (node.getIndexes().isAll()) {
 				return true;
 			} else {// 非所有，获取部分数据

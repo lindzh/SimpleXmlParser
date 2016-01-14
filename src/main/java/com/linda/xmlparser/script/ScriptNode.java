@@ -114,7 +114,7 @@ public class ScriptNode {
 	 * 取content中的值
 	 * @return
 	 */
-	public boolean isContent(){
+	public boolean isContentValue(){
 		return next==null&&!this.isValue();
 	}
 	

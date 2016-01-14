@@ -81,7 +81,7 @@ public class XmlScriptParser {
 				if(!matchAttributes){
 					return;
 				}
-				if(srcnode.isContent()){
+				if(srcnode.isContentValue()){
 					results.add(node.getContent());
 				}
 				
@@ -131,7 +131,7 @@ public class XmlScriptParser {
 				}
 			}else{
 				List<Node> matchNodes = this.matchAttrAndIndexAndConditions(node, elements,parent);
-				if(node.isContent()){
+				if(node.isContentValue()){
 					for(Node ele:matchNodes){
 						results.add(this.genValue(node, ele));
 					}
@@ -173,7 +173,7 @@ public class XmlScriptParser {
 	}
 	
 	private List<Node> filterNodeCondition(ScriptNode node,List<Node> elements){
-		if(node==null||StringUtils.isNotBlank(node.getContent())||CollectionUtils.isEmpty(elements)){
+		if(node==null||StringUtils.isBlank(node.getContent())||CollectionUtils.isEmpty(elements)||StringUtils.isBlank(node.getOperate())){
 			return elements;
 		}
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -272,7 +272,7 @@ public class XmlScriptParser {
 	 * @return
 	 */
 	private boolean isValue(ScriptNode node){
-		return node.isContent()||node.isValue();
+		return node.isContentValue()||node.isValue();
 	}
 	
 	/**
@@ -282,7 +282,7 @@ public class XmlScriptParser {
 	 * @return
 	 */
 	private String genValue(ScriptNode srcNode,Node node){
-		if(srcNode.isContent()){
+		if(srcNode.isContentValue()){
 			return node.getContent();
 		}
 		if(srcNode.isValue()){
