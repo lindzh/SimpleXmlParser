@@ -4,6 +4,11 @@ import java.util.List;
 
 import com.linda.xmlparser.exception.XmlException;
 
+/**
+ * 
+ * @author lindezhi
+ * 2016年1月14日 下午2:45:24
+ */
 public class XmlScript {
 
 	private String src;
