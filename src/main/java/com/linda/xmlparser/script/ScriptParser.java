@@ -65,6 +65,8 @@ public class ScriptParser {
 						//a[0]{}  {} attribute条件提取
 						int attStart = str.indexOf("{", idxEnd);
 						int attEnd = str.indexOf("}", idxEnd);
+						int conFrom = attEnd;
+
 						if(attEnd>attStart&&attStart>0){
 							String attScript = str.substring(attStart+1, attEnd);
 							if(StringUtils.isNotBlank(attScript)){
@@ -76,6 +78,7 @@ public class ScriptParser {
 							//a[0]{}()  ()//()相对条件提取
 							int conStart = str.indexOf("(", attEnd);
 							int conEnd = str.indexOf(")", attEnd);
+							conFrom = conEnd;
 							if(conStart>0&&conEnd>0){
 								current.setConditions(new ArrayList<ScriptNodeCondition>());
 								String subConditions = str.substring(conStart+1, conEnd);
@@ -102,8 +105,28 @@ public class ScriptParser {
 								throw new RuntimeException("invalid script:"+script);
 							}
 						}
-						
-//						str.indexOf("?", fromIndex);
+						//可能存在condition的条件下
+						if(conFrom>0&&conFrom<str.length()-1){
+							int conIdx = str.indexOf("?", conFrom);
+							if(conIdx>0){
+								String content = str.substring(conIdx+1).trim();
+								int conStart = content.indexOf("\"", 0);
+								int conEnd = content.lastIndexOf("\"");
+								if(conStart<conEnd&&conStart>=0){
+									String operate = null;
+									if(conStart>0){
+										operate = content.substring(0, conStart);
+									}else{
+										operate = "contains";
+									}
+									String con = content.substring(conStart+1, conEnd);
+									current.setContent(con);
+									current.setOperate(operate);
+								}else{
+									throw new RuntimeException("invalid condition:"+content);
+								}
+							}
+						}
 					}else{
 						throw new RuntimeException("invalid script:"+script);
 					}
@@ -189,13 +212,23 @@ public class ScriptParser {
 			}else{
 				contentIdx = condition.indexOf("?", end);
 			}
+			
 			if(contentIdx>0){
 				String content = condition.substring(contentIdx+1).trim();
-				if(content.startsWith("\"")&&content.endsWith("\"")){
-					content = content.substring(1, content.length()-1);
-					nodeCondition.setContent(content);
+				int conStart = content.indexOf("\"", 0);
+				int conEnd = content.lastIndexOf("\"");
+				if(conStart<conEnd&&conStart>=0){
+					String operate = null;
+					if(conStart>0){
+						operate = content.substring(0, conStart);
+					}else{
+						operate = "contains";
+					}
+					String con = content.substring(conStart+1, conEnd);
+					nodeCondition.setContent(con);
+					nodeCondition.setOperate(operate);
 				}else{
-					throw new RuntimeException("invalid condition:"+condition);
+					throw new RuntimeException("invalid condition:"+content);
 				}
 			}
 		}else{

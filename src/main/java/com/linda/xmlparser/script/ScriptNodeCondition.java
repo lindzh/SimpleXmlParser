@@ -15,6 +15,11 @@ public class ScriptNodeCondition {
 	//attribute条件
 	private Map<String, String> attributes;
 	
+	/**
+	 * 操作符，默认contains
+	 */
+	private String operate;
+	
 	//包含内容
 	private String content;
 
@@ -56,5 +61,13 @@ public class ScriptNodeCondition {
 
 	public void setScript(String script) {
 		this.script = script;
+	}
+
+	public String getOperate() {
+		return operate;
+	}
+
+	public void setOperate(String operate) {
+		this.operate = operate;
 	}
 }

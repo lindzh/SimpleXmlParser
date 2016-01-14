@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.linda.xmlparser.core.XmlParser;
@@ -164,10 +165,25 @@ public class XmlScriptParser {
 		List<Node> fixNodes = this.fixIndex(node.getIndexes(), elements);
 		List<Node> nodes = this.matchAttributes(fixNodes, node.getAttributes());
 		if(this.matchConditions(node, parent)){
+			nodes = this.filterNodeCondition(node, nodes);
 			return nodes;
 		}else{
 			return Collections.emptyList();
 		}
+	}
+	
+	private List<Node> filterNodeCondition(ScriptNode node,List<Node> elements){
+		if(node==null||StringUtils.isNotBlank(node.getContent())||CollectionUtils.isEmpty(elements)){
+			return elements;
+		}
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		ScriptMatcher matcher = ScriptMatcherRegister.getMatcher(node.getOperate());
+		for(Node ele:elements){
+			if(matcher.match(ele.getContent(), node.getContent())){
+				nodes.add(ele);
+			}
+		}
+		return nodes;
 	}
 	
 	private List<Node> fixIndex(NodeIndex index,List<Node> elements){
@@ -229,10 +245,11 @@ public class XmlScriptParser {
 					}
 					String content = condition.getContent();
 					if(StringUtils.isNotBlank(content)){
+						ScriptMatcher matcher = ScriptMatcherRegister.getMatcher(condition.getOperate());
 						for(Node fix:fixAtts){
 							String cc = fix.getContent();
 							if(StringUtils.isNotBlank(cc)){
-								if(!cc.contains(content)){
+								if(!matcher.match(cc, content)){
 									return false;
 								}
 							}else{

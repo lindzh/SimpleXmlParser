@@ -50,9 +50,9 @@ public class ScriptNode {
 	private String content;
 	
 	/**
-	 * content操作符,包含，不包含
+	 * 操作符，默认contains
 	 */
-	private Operate contentOperate;
+	private String operate;
 	/**
 	 * 下一级
 	 */
@@ -154,11 +154,11 @@ public class ScriptNode {
 		this.content = content;
 	}
 
-	public Operate getContentOperate() {
-		return contentOperate;
+	public String getOperate() {
+		return operate;
 	}
 
-	public void setContentOperate(Operate contentOperate) {
-		this.contentOperate = contentOperate;
+	public void setOperate(String operate) {
+		this.operate = operate;
 	}
 }
