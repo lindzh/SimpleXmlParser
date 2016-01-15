@@ -13,7 +13,7 @@ public class JSONScript {
 
 	// object list object定义
 	private Map<String, JSONNode> object;
-
+	
 	public String getJson() {
 		return json;
 	}

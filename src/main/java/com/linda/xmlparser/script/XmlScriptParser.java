@@ -3,6 +3,7 @@ package com.linda.xmlparser.script;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,25 +42,126 @@ public class XmlScriptParser {
 	
 	private XmlParser parser;
 	
+	private JSONScriptParser jsonScriptParser;
+	
 	public String parse(String content,String schema){
-		Object json = JSONUtils.fromJSON(schema);
-		if(json instanceof List){
-			List li = (List)json;
-			ArrayList<Object> list = new ArrayList<Object>();
-			for(Object item:li){
-				Map<String,Object> i = (Map<String,Object>)item;
-				
-				
-				
-				
-				
-				
-			}
-		}else{
-			
-			
+		JSONScript script = jsonScriptParser.parse(schema);
+		List<XmlScript> xmls = this.collect(script);
+		HashMap<String, List<String>> scriptValues = new HashMap<String,List<String>>();
+		for(XmlScript xml:xmls){
+			List<String> texts = this.parseList(xml, content);
+			scriptValues.put(xml.getSrc(), texts);
 		}
-		return "";
+		return this.collectValues(script, scriptValues);
+	}
+	
+
+	private String collectValues(JSONScript script,Map<String, List<String>> scriptValues){
+		if(script.getValueType()==JSONValueType.String){
+			return this.parseString(script.getString(), scriptValues, 0);
+		}else if(script.getValueType()==JSONValueType.List_String){
+			List<String> list = this.parseListString(script.getString(), scriptValues);
+			return JSONUtils.toJSON(list);
+		}else if(script.getValueType()==JSONValueType.Object){
+			Map<String, Object> object = this.parseObject(script.getObject(), scriptValues, 0);
+			return JSONUtils.toJSON(object);
+		}else if(script.getValueType()==JSONValueType.List_Object){
+			List<Map<String,Object>> list = this.parseListObject(script.getObject(), scriptValues);
+			return JSONUtils.toJSON(list);
+		}
+		return null;
+	}
+	
+	private List<Map<String,Object>> parseListObject(Map<String, JSONNode> object,Map<String, List<String>> scriptValues){
+		ArrayList<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		int index = 0;
+		Map<String, Object> value = this.parseObject(object, scriptValues, index);
+		while(value!=null){
+			list.add(value);
+			index++;
+			value = this.parseObject(object, scriptValues, index);
+		}
+		return list;
+	}
+	
+	private Map<String,Object> parseObject(Map<String, JSONNode> object,Map<String, List<String>> scriptValues,int index){
+		HashMap<String, Object> result = new HashMap<String,Object>();
+		Set<String> keys = object.keySet();
+		for(String key:keys){
+			Object value = null;
+			JSONNode node = object.get(key);
+			if(node.getValueType()==JSONValueType.String){
+				value = this.parseString(node, scriptValues, index);
+			}else if(node.getValueType()==JSONValueType.List_String){
+				if(index==0){
+					value = this.parseListString(node, scriptValues);
+				}else{
+					throw new RuntimeException("not supported list in list");
+				}
+			}else if(node.getValueType()==JSONValueType.Object){
+				value = this.parseObject(node.getObject(), scriptValues, index);
+			}else if(node.getValueType()==JSONValueType.List_Object){
+				if(index==0){
+					value = this.parseListObject(node.getObject(), scriptValues);
+				}else{
+					throw new RuntimeException("not supported list in list");
+				}
+			}
+			if(index>0&&value==null){
+				return null;
+			}
+			result.put(key, value);
+		}
+		return result;
+	}
+	
+	private String parseString(JSONNode node,Map<String, List<String>> scriptValues,int index){
+		List<String> list = scriptValues.get(node.getScript().getSrc());
+		if(list!=null&&list.size()>index){
+			return list.get(index);
+		}
+		return null;
+	}
+	
+	private List<String> parseListString(JSONNode node,Map<String, List<String>> scriptValues){
+		List<String> list = scriptValues.get(node.getScript().getSrc());
+		if(list!=null){
+			return list;
+		}else{
+			return Collections.emptyList();
+		}
+	}
+	
+	private List<XmlScript> collect(JSONScript script){
+		ArrayList<XmlScript> list = new ArrayList<XmlScript>();
+		if(script.getValueType()==JSONValueType.String){
+			list.add(this.collectString(script.getString()));
+		}else if(script.getValueType()==JSONValueType.List_String){
+			list.add(this.collectString(script.getString()));
+		}else if(script.getValueType()==JSONValueType.Object){
+			list.addAll(this.collectObject(script.getObject()));
+		}else if(script.getValueType()==JSONValueType.List_Object){
+			list.addAll(this.collectObject(script.getObject()));
+		}
+		return list;
+	}
+	
+	private XmlScript collectString(JSONNode node){
+		return node.getScript();
+	}
+	
+	private List<XmlScript> collectObject(Map<String, JSONNode> object){
+		ArrayList<XmlScript> list = new ArrayList<XmlScript>();
+		Set<String> keys = object.keySet();
+		for(String key:keys){
+			JSONNode node = object.get(key);
+			if(node.getValueType()==JSONValueType.String||node.getValueType()==JSONValueType.List_String){
+				list.add(node.getScript());
+			}else{
+				list.addAll(this.collectObject(node.getObject()));
+			}
+		}
+		return list;
 	}
 	
 	/**
@@ -176,6 +278,9 @@ public class XmlScriptParser {
 		if(node==null||StringUtils.isBlank(node.getContent())||CollectionUtils.isEmpty(elements)||StringUtils.isBlank(node.getOperate())){
 			return elements;
 		}
+		if(node.isContentValue()||node.isValue()){
+			return elements;
+		}
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		ScriptMatcher matcher = ScriptMatcherRegister.getMatcher(node.getOperate());
 		for(Node ele:elements){
@@ -267,28 +372,36 @@ public class XmlScriptParser {
 	
 
 	/**
-	 * 是否可取值
-	 * @param node
-	 * @return
-	 */
-	private boolean isValue(ScriptNode node){
-		return node.isContentValue()||node.isValue();
-	}
-	
-	/**
 	 * 取值
 	 * @param srcNode
 	 * @param node
 	 * @return
 	 */
 	private String genValue(ScriptNode srcNode,Node node){
-		if(srcNode.isContentValue()){
-			return node.getContent();
+		String operate = srcNode.getOperate();
+		String content = srcNode.getContent();
+		if(StringUtils.isNotBlank(operate)&&StringUtils.isNotBlank(content)){
+			ScriptMatcher matcher = ScriptMatcherRegister.getMatcher(operate);
+			if(matcher.match(node.getContent(), content)){
+				if(srcNode.isContentValue()){
+					return node.getContent();
+				}
+				if(srcNode.isValue()){
+					return node.getAttribute(srcNode.getScript());
+				}
+				throw new XmlException("unknown value to get");
+			}else{
+				return "";
+			}
+		}else{
+			if(srcNode.isContentValue()){
+				return node.getContent();
+			}
+			if(srcNode.isValue()){
+				return node.getAttribute(srcNode.getScript());
+			}
+			throw new XmlException("unknown value to get");
 		}
-		if(srcNode.isValue()){
-			return node.getAttribute(srcNode.getScript());
-		}
-		throw new XmlException("unknown value to get");
 	}
 
 	private List<Node> matchAttributes(Collection<Node> nodes,Map<String,String> att){
@@ -343,5 +456,16 @@ public class XmlScriptParser {
 
 	public void setParser(XmlParser parser) {
 		this.parser = parser;
+	}
+
+
+	public JSONScriptParser getJsonScriptParser() {
+		return jsonScriptParser;
+	}
+
+
+	public void setJsonScriptParser(JSONScriptParser jsonScriptParser) {
+		this.jsonScriptParser = jsonScriptParser;
 	} 
+	
 }

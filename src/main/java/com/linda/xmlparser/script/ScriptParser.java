@@ -65,7 +65,7 @@ public class ScriptParser {
 						//a[0]{}  {} attribute条件提取
 						int attStart = str.indexOf("{", idxEnd);
 						int attEnd = str.indexOf("}", idxEnd);
-						int conFrom = -1;
+						int conFrom = idxEnd;
 
 						if(attEnd>attStart&&attStart>0){
 							conFrom = attEnd;
