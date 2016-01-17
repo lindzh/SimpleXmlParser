@@ -26,7 +26,17 @@ public class ScriptTest {
 		System.out.println(JSONUtils.toJSON(txt));
 	}
 	
-	public static void main(String[] args) {
+	public static  void main(String[] args){
+		String file = FileUtils.toString("d:\\news.html");
+		String schema = FileUtils.toString("d:\\news.json");
+		XmlScriptParser parser = new XmlScriptParser();
+		parser.setParser(new DefaultHtmlParser());
+		parser.setJsonScriptParser(new JSONScriptParser());
+		String parse = parser.parse(file, schema);
+		System.out.println(parse);
+	}
+	
+	public static void anjuke(String[] args) {
 		String file = FileUtils.toString("d:\\anjuke.html");
 		String schema = FileUtils.toString("d:\\jsonHtml.json");
 		XmlScriptParser parser = new XmlScriptParser();

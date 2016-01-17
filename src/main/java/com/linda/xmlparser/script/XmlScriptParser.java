@@ -294,23 +294,21 @@ public class XmlScriptParser {
 	private List<Node> fixIndex(NodeIndex index,List<Node> elements){
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		if(elements!=null&&index!=null){
-			Set<Node> fixNodes = new HashSet<Node>();
 			if(index.isAll()){
-				fixNodes.addAll(elements);
+				return elements;
 			}else{
 				List<Integer> indexes = index.getIndexes();
 				boolean last = index.isLast();
 				for(int idx:indexes){
 					if(elements.size()>idx){
 						Node node2 = elements.get(idx);
-						fixNodes.add(node2);
+						nodes.add(node2);
 					}
 				}
 				if(last&&elements.size()>0){
-					fixNodes.add(elements.get(elements.size()-1));
+					nodes.add(elements.get(elements.size()-1));
 				}
 			}
-			nodes.addAll(fixNodes);
 		}
 		return nodes;
 	}
