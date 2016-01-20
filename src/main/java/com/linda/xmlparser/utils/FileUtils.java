@@ -45,7 +45,7 @@ public class FileUtils {
 		try {
 			RandomAccessFile file = new RandomAccessFile(filePath, "rw");
 			file.seek(file.length());
-			file.write(content.getBytes("gbk"));
+			file.write(content.getBytes("utf-8"));
 //			file.writeBytes("\r\n");
 			file.close();
 		} catch (FileNotFoundException e) {

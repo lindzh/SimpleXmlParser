@@ -33,6 +33,7 @@ public class ScriptTest {
 		parser.setParser(new DefaultHtmlParser());
 		parser.setJsonScriptParser(new JSONScriptParser());
 		String parse = parser.parse(file, schema);
+		FileUtils.append("d:\\news-content.txt", parse);
 		System.out.println(parse);
 	}
 	

@@ -1,15 +1,15 @@
 package com.linda.xmlparser.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.linda.xmlparser.content.DefaultContentParser;
 import com.linda.xmlparser.index.SimpleEndIndex;
 import com.linda.xmlparser.listener.Node;
 import com.linda.xmlparser.param.DefaultParamParser;
-import com.linda.xmlparser.utils.FileUtils;
 
 /**
  * html parser
@@ -53,6 +53,9 @@ public class DefaultHtmlParser extends XmlParser {
 	private void parseTxt(String txt, int from, int end,Node node) {
 		int preFrom = txt.indexOf("<", from);
 		int preEnd = txt.indexOf(">", from);
+		
+		int fromStartIdx = from;
+		
 		while (preFrom >= from && preEnd >= from && preEnd > preFrom && preEnd < end && from < end) {
 			String type = null;
 			Map<String, String> paramMap = new HashMap<String,String>();
@@ -91,22 +94,44 @@ public class DefaultHtmlParser extends XmlParser {
 			nn.setAttributes(paramMap);
 			nn.setParent(node);
 			if(node!=null){
+				//前缀加入
+				String preTxt = txt.substring(fromStartIdx, preFrom);
+				if(StringUtils.isNotBlank(preTxt)){
+					node.getTxtBuilder().append(preTxt.trim());
+				}
 				node.addChild(nn);
 			}
 			nn.setContent(content);
 			if (isXml(content)) {
 				parseTxt(content, 0, content.length(),nn);
+				if(node!=null){
+					node.getTxtBuilder().append(nn.getTxt());
+				}
 			}else{
 				if(this.contentParser!=null){
-					nn.setContent(this.contentParser.parserContent(nn.getContent()));
+					String cc = this.contentParser.parserContent(nn.getContent());
+					nn.setContent(cc);
+					
+					if(node!=null&&cc!=null){
+						node.getTxtBuilder().append(cc.trim());
+					}
 				}
 			}
 			super.fireNodeListener(nn);
+			
+			fromStartIdx = from;
 			if (from < end) {
 				preFrom = txt.indexOf("<", from);
 				preEnd = txt.indexOf(">", from);
 			} else {
 				break;
+			}
+		}
+		//后缀加入
+		if(preEnd<end){
+			String str = txt.substring(from, end);
+			if(node!=null){
+				node.getTxtBuilder().append(str.trim());
 			}
 		}
 	}

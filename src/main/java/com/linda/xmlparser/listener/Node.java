@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * html 或者xml 节点
  * @author lindezhi
@@ -45,6 +47,8 @@ public class Node {
 	private List<Node> children;
 	
 	private Map<String,List<Node>> childrenMap = new HashMap<String,List<Node>>();
+	
+	private StringBuilder contentTxt = new StringBuilder();
 
 	public String getName() {
 		return name;
@@ -95,6 +99,19 @@ public class Node {
 	
 	public List<Node> getChildren(String name) {
 		return childrenMap.get(name);
+	}
+	
+	public String getTxt(){
+		String txt = contentTxt.toString();
+		if(StringUtils.isBlank(txt)){
+			return content;
+		}else{
+			return txt;
+		}
+	}
+	
+	public StringBuilder getTxtBuilder(){
+		return contentTxt;
 	}
 	
 	public void addChild(Node child){
